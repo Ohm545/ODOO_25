@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Log In - Chitragupt</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #0a0a0a;
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(118, 75, 162, 0.15) 0%, transparent 70%);
+            animation: float 15s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(50px, -50px); }
+        }
+
+        .container {
+            width: 100%;
+            max-width: 450px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 3rem;
+            backdrop-filter: blur(10px);
+            position: relative;
+            z-index: 1;
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .logo h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+
+        .logo p {
+            color: #a0a0a0;
+            font-size: 0.95rem;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 0.5rem;
+            border-radius: 12px;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 0.75rem;
+            background: transparent;
+            border: none;
+            color: #a0a0a0;
+            font-size: 0.95rem;
+            font-weight: 500;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #ffffff;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #e0e0e0;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        input {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            color: #ffffff;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .error {
+            color: #ff6b6b;
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+
+        .error.show {
+            display: block;
+        }
+
+        .forgot-password {
+            text-align: right;
+            margin-top: 0.5rem;
+        }
+
+        .forgot-password a {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .forgot-password a:hover {
+            text-decoration: underline;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #ffffff;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 1rem;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .divider {
+            text-align: center;
+            margin: 2rem 0;
+            color: #a0a0a0;
+            font-size: 0.9rem;
+        }
+
+        .signup-link {
+            text-align: center;
+            color: #a0a0a0;
+            font-size: 0.95rem;
+        }
+
+        .signup-link a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .signup-link a:hover {
+            text-decoration: underline;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 1rem;
+            color: #a0a0a0;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .form-content {
+            display: none;
+        }
+
+        .form-content.active {
+            display: block;
+        }
+
+        @media (max-width: 640px) {
+            .container {
+                padding: 2rem 1.5rem;
+            }
+
+            .logo h1 {
+                font-size: 1.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <h1>Chitragupt</h1>
+            <p>Welcome back</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" data-tab="admin">Admin</button>
+            <button class="tab" data-tab="user">Employee/Manager</button>
+        </div>
+
+        <form id="loginForm">
+            <div class="form-content active" id="adminForm">
+                <div class="form-group">
+                    <label for="adminEmail">Email Address</label>
+                    <input type="email" id="adminEmail" name="email" required>
+                    <div class="error" id="adminEmailError">Please enter a valid email address</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="adminPassword">Password</label>
+                    <input type="password" id="adminPassword" name="password" required>
+                    <div class="error" id="adminPasswordError">Please enter your password</div>
+                    <div class="forgot-password">
+                        <a href="#">Forgot password?</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-content" id="userForm">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" required>
+                    <div class="error" id="usernameError">Please enter your username</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="userPassword">Password</label>
+                    <input type="password" id="userPassword" name="password" required>
+                    <div class="error" id="userPasswordError">Please enter your password</div>
+                    <div class="forgot-password">
+                        <a href="#">Forgot password?</a>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn" id="submitBtn">Log In</button>
+            <div class="loading" id="loading">Logging you in...</div>
+        </form>
+
+        <div class="divider">Don't have an account?</div>
+        <div class="signup-link">
+            <a href="signup.html">Sign up as Admin</a>
+        </div>
+    </div>
+
+    <script>
+        const tabs = document.querySelectorAll('.tab');
+        const adminForm = document.getElementById('adminForm');
+        const userForm = document.getElementById('userForm');
+        let currentTab = 'admin';
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                
+                currentTab = tab.dataset.tab;
+                
+                if (currentTab === 'admin') {
+                    adminForm.classList.add('active');
+                    userForm.classList.remove('active');
+                } else {
+                    userForm.classList.add('active');
+                    adminForm.classList.remove('active');
+                }
+
+                document.querySelectorAll('.error').forEach(el => el.classList.remove('show'));
+            });
+        });
+
+        const form = document.getElementById('loginForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const loading = document.getElementById('loading');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            document.querySelectorAll('.error').forEach(el => el.classList.remove('show'));
+
+            let isValid = true;
+
+            if (currentTab === 'admin') {
+                const email = document.getElementById('adminEmail').value.trim();
+                const password = document.getElementById('adminPassword').value;
+
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(email)) {
+                    document.getElementById('adminEmailError').classList.add('show');
+                    isValid = false;
+                }
+
+                if (!password) {
+                    document.getElementById('adminPasswordError').classList.add('show');
+                    isValid = false;
+                }
+
+                if (!isValid) return;
+
+                submitBtn.disabled = true;
+                loading.classList.add('show');
+
+                setTimeout(() => {
+                    const storedUser = localStorage.getItem('chitragupt_user');
+                    
+                    if (storedUser) {
+                        const userData = JSON.parse(storedUser);
+                        if (userData.email === email && userData.password === password) {
+                            alert('Login successful! Welcome back, ' + userData.name);
+                            window.location.href = 'index.html';
+                        } else {
+                            alert('Invalid email or password');
+                            submitBtn.disabled = false;
+                            loading.classList.remove('show');
+                        }
+                    } else {
+                        alert('No account found. Please sign up first.');
+                        submitBtn.disabled = false;
+                        loading.classList.remove('show');
+                    }
+                }, 1500);
+
+            } else {
+                const username = document.getElementById('username').value.trim();
+                const password = document.getElementById('userPassword').value;
+
+                if (!username) {
+                    document.getElementById('usernameError').classList.add('show');
+                    isValid = false;
+                }
+
+                if (!password) {
+                    document.getElementById('userPasswordError').classList.add('show');
+                    isValid = false;
+                }
+
+                if (!isValid) return;
+
+                submitBtn.disabled = true;
+                loading.classList.add('show');
+
+                setTimeout(() => {
+                    alert('Employee/Manager login functionality will be available after admin creates accounts.');
+                    submitBtn.disabled = false;
+                    loading.classList.remove('show');
+                }, 1500);
+            }
+        });
+
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('input', () => {
+                const errorEl = document.getElementById(input.id + 'Error');
+                if (errorEl) errorEl.classList.remove('show');
+            });
+        });
+    </script>
+</body>
+</html>

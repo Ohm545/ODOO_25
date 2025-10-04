@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - Chitragupt</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #0a0a0a;
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(102, 126, 234, 0.15) 0%, transparent 70%);
+            animation: float 15s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(-50px, 50px); }
+        }
+
+        .container {
+            width: 100%;
+            max-width: 480px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 3rem;
+            backdrop-filter: blur(10px);
+            position: relative;
+            z-index: 1;
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .logo h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+
+        .logo p {
+            color: #a0a0a0;
+            font-size: 0.95rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #e0e0e0;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            color: #ffffff;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6L11 1' stroke='%23a0a0a0' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            padding-right: 2.5rem;
+        }
+
+        select option {
+            background: #1a1a1a;
+            color: #ffffff;
+        }
+
+        .error {
+            color: #ff6b6b;
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+
+        .error.show {
+            display: block;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #ffffff;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 1rem;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .divider {
+            text-align: center;
+            margin: 2rem 0;
+            color: #a0a0a0;
+            font-size: 0.9rem;
+        }
+
+        .login-link {
+            text-align: center;
+            color: #a0a0a0;
+            font-size: 0.95rem;
+        }
+
+        .login-link a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .login-link a:hover {
+            text-decoration: underline;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 1rem;
+            color: #a0a0a0;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        @media (max-width: 640px) {
+            .container {
+                padding: 2rem 1.5rem;
+            }
+
+            .logo h1 {
+                font-size: 1.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <h1>Chitragupt</h1>
+            <p>Create your company account</p>
+        </div>
+
+        <form id="signupForm">
+            <div class="form-group">
+                <label for="name">Full Name</label>
+                <input type="text" id="name" name="name" required>
+                <div class="error" id="nameError">Please enter your full name</div>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" name="email" required>
+                <div class="error" id="emailError">Please enter a valid email address</div>
+            </div>
+
+            <div class="form-group">
+                <label for="country">Country</label>
+                <select id="country" name="country" required>
+                    <option value="">Select your country</option>
+                </select>
+                <div class="error" id="countryError">Please select a country</div>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
+                <div class="error" id="passwordError">Password must be at least 8 characters</div>
+            </div>
+
+            <div class="form-group">
+                <label for="confirmPassword">Confirm Password</label>
+                <input type="password" id="confirmPassword" name="confirmPassword" required>
+                <div class="error" id="confirmPasswordError">Passwords do not match</div>
+            </div>
+
+            <button type="submit" class="btn" id="submitBtn">Create Account</button>
+            <div class="loading" id="loading">Creating your account...</div>
+        </form>
+
+        <div class="divider">Already have an account?</div>
+        <div class="login-link">
+            <a href="login.html">Log in here</a>
+        </div>
+    </div>
+
+    <script>
+        let countriesData = [];
+
+        async function loadCountries() {
+            try {
+                const response = await fetch('https://restcountries.com/v3.1/all?fields=name,currencies');
+                countriesData = await response.json();
+                
+                countriesData.sort((a, b) => a.name.common.localeCompare(b.name.common));
+                
+                const countrySelect = document.getElementById('country');
+                countriesData.forEach(country => {
+                    const option = document.createElement('option');
+                    option.value = country.name.common;
+                    const currencies = country.currencies ? Object.keys(country.currencies).join(', ') : 'N/A';
+                    option.textContent = `${country.name.common} (${currencies})`;
+                    option.dataset.currencies = JSON.stringify(country.currencies);
+                    countrySelect.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error loading countries:', error);
+                document.getElementById('countryError').textContent = 'Failed to load countries. Please refresh.';
+                document.getElementById('countryError').classList.add('show');
+            }
+        }
+
+        loadCountries();
+
+        const form = document.getElementById('signupForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const loading = document.getElementById('loading');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const name = document.getElementById('name').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const country = document.getElementById('country').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            document.querySelectorAll('.error').forEach(el => el.classList.remove('show'));
+
+            let isValid = true;
+
+            if (!name || name.length < 2) {
+                document.getElementById('nameError').classList.add('show');
+                isValid = false;
+            }
+
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                document.getElementById('emailError').classList.add('show');
+                isValid = false;
+            }
+
+            if (!country) {
+                document.getElementById('countryError').classList.add('show');
+                isValid = false;
+            }
+
+            if (password.length < 8) {
+                document.getElementById('passwordError').classList.add('show');
+                isValid = false;
+            }
+
+            if (password !== confirmPassword) {
+                document.getElementById('confirmPasswordError').classList.add('show');
+                isValid = false;
+            }
+
+            if (!isValid) return;
+
+            const selectedOption = document.getElementById('country').selectedOptions[0];
+            const currencies = JSON.parse(selectedOption.dataset.currencies || '{}');
+            const currencyCode = Object.keys(currencies)[0] || 'USD';
+            const currencyData = currencies[currencyCode] || {};
+
+            const userData = {
+                name,
+                email,
+                country,
+                currency: currencyCode,
+                currencySymbol: currencyData.symbol || '$',
+                currencyName: currencyData.name || 'US Dollar',
+                password,
+                role: 'admin',
+                companyId: 'COMP_' + Date.now(),
+                userId: 'USER_' + Date.now(),
+                createdAt: new Date().toISOString()
+            };
+
+            submitBtn.disabled = true;
+            loading.classList.add('show');
+
+            setTimeout(() => {
+                localStorage.setItem('chitragupt_user', JSON.stringify(userData));
+                localStorage.setItem('chitragupt_company', JSON.stringify({
+                    id: userData.companyId,
+                    name: name + "'s Company",
+                    currency: currencyCode,
+                    currencySymbol: currencyData.symbol,
+                    country: country,
+                    adminId: userData.userId,
+                    createdAt: userData.createdAt
+                }));
+
+                alert('Account created successfully! Redirecting to login...');
+                window.location.href = 'login.html';
+            }, 1500);
+        });
+
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('input', () => {
+                const errorEl = document.getElementById(input.id + 'Error');
+                if (errorEl) errorEl.classList.remove('show');
+            });
+        });
+
+        document.getElementById('country').addEventListener('change', () => {
+            document.getElementById('countryError').classList.remove('show');
+        });
+    </script>
+</body>
+</html>
