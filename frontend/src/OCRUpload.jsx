@@ -361,33 +361,7 @@ export default function OCRUpload({ onExtract }) {
         {busy ? <small>OCR: {progress || 'working...'}</small> : <small>{preview ? 'Ready' : 'No file selected'}</small>}
       </div>
 
-      {/* Debug panel: show last OCR raw text and parsed fields */}
-      <div style={{marginTop:12, background:'#fbfbff', padding:10, borderRadius:6}}>
-        <strong>Parsed fields</strong>
-        <div style={{marginTop:8}}>
-          <div><strong>Vendor:</strong> <span id="ocr-vendor">{(window.__lastOCR && window.__lastOCR.vendor) || ''}</span></div>
-          <div><strong>Date:</strong> <span id="ocr-date">{(window.__lastOCR && window.__lastOCR.date) || ''}</span></div>
-          <div><strong>Amount:</strong> <span id="ocr-amount">{(window.__lastOCR && window.__lastOCR.amount) || ''}</span></div>
-          <div><strong>Category:</strong> <span id="ocr-category">{(window.__lastOCR && window.__lastOCR.category) || ''}</span></div>
-        </div>
-        <details style={{marginTop:8}}>
-          <summary style={{cursor:'pointer'}}>Raw OCR text</summary>
-          <pre style={{whiteSpace:'pre-wrap',maxHeight:200,overflow:'auto'}} id="ocr-raw">{(window.__lastOCR && window.__lastOCR.rawText) || ''}</pre>
-        </details>
-        <details style={{marginTop:8}}>
-          <summary style={{cursor:'pointer'}}>OCR words (text / confidence)</summary>
-          <div style={{maxHeight:200,overflow:'auto'}}>
-            {window.__lastOCR && window.__lastOCR.words && window.__lastOCR.words.map((w, i) => (
-              <div key={i} style={{fontSize:12}}>{w.text} — {Math.round((w.confidence||w.conf||0))}%</div>
-            ))}
-          </div>
-        </details>
-
-        <details style={{marginTop:8}}>
-          <summary style={{cursor:'pointer'}}>Full OCR data (JSON)</summary>
-          <pre style={{whiteSpace:'pre-wrap',maxHeight:300,overflow:'auto',fontSize:12}} id="ocr-full">{window.__lastOCR && window.__lastOCR.fullData ? JSON.stringify(window.__lastOCR.fullData, null, 2) : 'No fullData available'}</pre>
-        </details>
-      </div>
+      {/* debug UI removed: OCR runs silently and returns parsed fields to parent */}
     </div>
   )
 }
