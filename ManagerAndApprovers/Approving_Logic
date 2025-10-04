@@ -1,1 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Request & Approval Management System</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            padding: 30px;
+            display: none;
+        }
+        #login-container {
+            display: block;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            font-size: 2.2em;
+            margin-bottom: 20px;
+        }
+        form {
+            max-width: 400px;
+            margin: auto;
+        }
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1em;
+        }
+        button {
+            background: #27ae60;
+            color: #fff;
+            cursor: pointer;
+        }
+        .logout-btn {
+            background: #e74c3c;
+            width: auto;
+            padding: 8px 15px;
+            margin: 10px auto;
+            display: block;
+        }
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+        .controls select, .controls input {
+            flex: 1;
+        }
+        .request-card {
+            background: #f9f9f9;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .request-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+        }
+        .request-info {
+            flex: 3;
+        }
+        .request-info p {
+            margin: 5px 0;
+            font-size: 1em;
+        }
+        .status {
+            padding: 5px 10px;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 0.9em;
+            display: inline-block;
+        }
+        .status-pending { background: #f39c12; }
+        .status-approved { background: #27ae60; }
+        .status-rejected { background: #c0392b; }
+        .actions {
+            flex: 1;
+            text-align: right;
+        }
+        .action-btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+            margin-left: 10px;
+            transition: background 0.2s;
+        }
+        .approve-btn { background: #27ae60; color: #fff; }
+        .approve-btn:hover { background: #219653; }
+        .reject-btn { background: #c0392b; color: #fff; }
+        .reject-btn:hover { background: #a93226; }
+        .disabled-btn { background: #ccc; cursor: not-allowed; }
+        .feedback {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            color: #fff;
+            display: none;
+            z-index: 1000;
+        }
+        .feedback-success { background: #27ae60; }
+        .feedback-error { background: #c0392b; }
+        .stats {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 1.2em;
+            color: #34495e;
+        }
+        @media (max-width: 768px) {
+            .request-card { flex-direction: column; align-items: flex-start; }
+            .actions { text-align: left; margin-top: 10px; }
+            .controls { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <div id="login-container" class="container">
+        <h1>Login</h1>
+        <form id="login-form">
+            <input type="text" id="username" placeholder="Username (ID)" required>
+            <input type="password" id="password" placeholder="Password" required>
+            <button type="submit">Login</button>
+        </form>
+        <div id="login-feedback" class="feedback"></div>
+    </div>
 
+    <div id="employee-container" class="container">
+        <h1>Employee Dashboard</h1>
+        <button class="logout-btn" onclick="logout()">Logout</button>
+        <div id="employee-requests"></div>
+        <div id="employee-feedback" class="feedback"></div>
+    </div>
+
+    <div id="manager-container" class="container">
+        <h1>Manager Dashboard</h1>
+        <button class="logout-btn" onclick="logout()">Logout</button>
+        <div class="controls">
+            <select id="manager-status-filter" onchange="loadManagerRequests()">
+                <option value="all">All Statuses</option>
+                <option value="Pending">Pending</option>
+                <option value="Approved">Approved</option>
+                <option value="Rejected">Rejected</option>
+            </select>
+            <input type="text" id="manager-search" placeholder="Search by Request ID or Employee" oninput="loadManagerRequests()">
+        </div>
+        <div id="manager-requests"></div>
+        <div id="manager-feedback" class="feedback"></div>
+    </div>
+
+    <div id="approver-container" class="container">
+        <h1>Approver Dashboard</h1>
+        <button class="logout-btn" onclick="logout()">Logout</button>
+        <div class="controls">
+            <select id="approver-status-filter" onchange="loadApproverRequests()">
+                <option value="all">All Statuses</option>
+                <option value="Pending">Pending</option>
+                <option value="Approved">Approved</option>
+                <option value="Rejected">Rejected</option>
+            </select>
+            <input type="text" id="approver-search" placeholder="Search by Request ID or Employee" oninput="loadApproverRequests()">
+        </div>
+        <div id="approver-requests"></div>
+        <div id="approver-feedback" class="feedback"></div>
+    </div>
+
+    <script>
+        // Dummy database structured for readability
+        // TODO: This entire object will be replaced with actual database fetches/updates
+        const database = {
+            managers: [
+                {
+                    id: "mgr001",
+                    name: "Rajesh Kumar",
+                    password: "pass456",
+                    role: "manager",
+                    employees: ["emp001", "emp002"],
+                    isApprover: true,
+                    approvalMode: "sequential",
+                    additionalApprovers: ["apr001"]
+                },
+                {
+                    id: "mgr002",
+                    name: "Anita Singh",
+                    password: "pass456",
+                    role: "manager",
+                    employees: ["emp003", "emp004"],
+                    isApprover: false,
+                    approvalMode: "simultaneous",
+                    additionalApprovers: ["apr001"]
+                },
+                {
+                    id: "mgr003",
+                    name: "Suresh Reddy",
+                    password: "pass456",
+                    role: "manager",
+                    employees: ["emp005"],
+                    isApprover: true,
+                    approvalMode: "sequential",
+                    additionalApprovers: ["apr001"]
+                }
+            ],
+            approvers: [
+                {
+                    id: "apr001",
+                    name: "Vikram Desai",
+                    password: "pass789",
+                    role: "approver"
+                }
+            ],
+            employees: [
+                { id: "emp001", name: "Aarav Sharma", password: "pass123", role: "employee" },
+                { id: "emp002", name: "Priya Patel", password: "pass123", role: "employee" },
+                { id: "emp003", name: "Rohan Gupta", password: "pass123", role: "employee" },
+                { id: "emp004", name: "Neha Verma", password: "pass123", role: "employee" },
+                { id: "emp005", name: "Karan Joshi", password: "pass123", role: "employee" }
+            ],
+            requests: [
+                {
+                    id: "req001",
+                    employeeId: "emp001",
+                    employeeName: "Aarav Sharma",
+                    description: "Travel to conference",
+                    category: "Travel",
+                    amount: 500,
+                    currency: "USD",
+                    expenseDate: "2023-01-01",
+                    paidBy: "Credit Card",
+                    remarks: "Business trip",
+                    currentApproverIndex: 0,
+                    status: "Pending",
+                    approvals: {}
+                },
+                {
+                    id: "req002",
+                    employeeId: "emp002",
+                    employeeName: "Priya Patel",
+                    description: "Office supplies",
+                    category: "Supplies",
+                    amount: 200,
+                    currency: "USD",
+                    expenseDate: "2023-02-15",
+                    paidBy: "Cash",
+                    remarks: "Urgent purchase",
+                    currentApproverIndex: 0,
+                    status: "Pending",
+                    approvals: {}
+                },
+                {
+                    id: "req003",
+                    employeeId: "emp003",
+                    employeeName: "Rohan Gupta",
+                    description: "Training course",
+                    category: "Education",
+                    amount: 1000,
+                    currency: "USD",
+                    expenseDate: "2023-03-10",
+                    paidBy: "Bank Transfer",
+                    remarks: "Skill development",
+                    currentApproverIndex: 0,
+                    status: "Pending",
+                    approvals: {}
+                },
+                {
+                    id: "req004",
+                    employeeId: "emp004",
+                    employeeName: "Neha Verma",
+                    description: "Team lunch",
+                    category: "Meals",
+                    amount: 150,
+                    currency: "USD",
+                    expenseDate: "2023-04-05",
+                    paidBy: "Credit Card",
+                    remarks: "Team building",
+                    currentApproverIndex: 0,
+                    status: "Pending",
+                    approvals: {}
+                },
+                {
+                    id: "req005",
+                    employeeId: "emp005",
+                    employeeName: "Karan Joshi",
+                    description: "Software license",
+                    category: "Software",
+                    amount: 300,
+                    currency: "USD",
+                    expenseDate: "2023-05-20",
+                    paidBy: "Online Payment",
+                    remarks: "Annual renewal",
+                    currentApproverIndex: 0,
+                    status: "Pending",
+                    approvals: {}
+                }
+            ],
+            actions: []
+        };
+
+        let currentUser = null;
+
+        // Helper to get manager for an employee
+        function getManagerForEmployee(employeeId) {
+            // TODO: Replace with database query to find manager
+            return database.managers.find(m => m.employees.includes(employeeId));
+        }
+
+        // Helper to get approvers for a request
+        function getApproversForRequest(req) {
+            const manager = getManagerForEmployee(req.employeeId);
+            if (!manager) return [];
+            return manager.isApprover 
+                ? [manager.id, ...manager.additionalApprovers] 
+                : manager.additionalApprovers;
+        }
+
+        // Calculate approval progress
+        function calculateProgress(req) {
+            const approvers = getApproversForRequest(req);
+            const approvedCount = Object.values(req.approvals).filter(a => a === "Approved").length;
+            const total = approvers.length;
+            return total > 0 ? Math.round(approvedCount / total * 100) : 0;
+        }
+
+        // Logout function
+        function logout() {
+            // Hide current dashboard
+            if (currentUser && currentUser.role === "employee") {
+                document.getElementById("employee-container").style.display = "none";
+            } else if (currentUser && currentUser.role === "manager") {
+                document.getElementById("manager-container").style.display = "none";
+            } else if (currentUser && currentUser.role === "approver") {
+                document.getElementById("approver-container").style.display = "none";
+            }
+            
+            // Show login
+            document.getElementById("login-container").style.display = "block";
+            
+            // Clear form
+            document.getElementById("username").value = "";
+            document.getElementById("password").value = "";
+            
+            // Clear current user
+            currentUser = null;
+            
+            // Update history
+            history.pushState({page: 'login'}, '', '#login');
+            
+            showFeedback("Logged out successfully!", "success", "login");
+        }
+
+        // Login handling
+        document.getElementById("login-form").addEventListener("submit", function(event) {
+            event.preventDefault();
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+
+            // TODO: Replace with actual database query for authentication
+            let user = database.managers.find(u => u.id === username && u.password === password);
+            if (!user) user = database.approvers.find(u => u.id === username && u.password === password);
+            if (!user) user = database.employees.find(u => u.id === username && u.password === password);
+
+            if (user) {
+                currentUser = user;
+                document.getElementById("login-container").style.display = "none";
+                if (user.role === "employee") {
+                    document.getElementById("employee-container").style.display = "block";
+                    loadEmployeeRequests();
+                    history.pushState({page: 'employee'}, '', '#employee');
+                } else if (user.role === "manager") {
+                    document.getElementById("manager-container").style.display = "block";
+                    loadManagerRequests();
+                    history.pushState({page: 'manager'}, '', '#manager');
+                } else if (user.role === "approver") {
+                    document.getElementById("approver-container").style.display = "block";
+                    loadApproverRequests();
+                    history.pushState({page: 'approver'}, '', '#approver');
+                }
+                showFeedback("Login successful!", "success", user.role);
+            } else {
+                showFeedback("Invalid credentials!", "error", "login");
+            }
+        });
+
+        // Handle browser back/forward
+        window.addEventListener('popstate', function(event) {
+            if (event.state && event.state.page === 'login') {
+                logout();
+            }
+        });
+
+        // Load employee requests
+        function loadEmployeeRequests() {
+            const container = document.getElementById("employee-requests");
+            container.innerHTML = "";
+
+            // TODO: Replace with database query
+            const userRequests = database.requests.filter(req => req.employeeId === currentUser.id);
+
+            userRequests.forEach(req => {
+                const card = createRequestCard(req, false);
+                container.appendChild(card);
+            });
+        }
+
+        // Load manager requests
+        function loadManagerRequests() {
+            const statusFilter = document.getElementById("manager-status-filter").value;
+            const searchTerm = document.getElementById("manager-search").value.toLowerCase();
+            const container = document.getElementById("manager-requests");
+            container.innerHTML = "";
+
+            // TODO: Replace with database query
+            let filteredRequests = database.requests.filter(req => currentUser.employees.includes(req.employeeId));
+
+            // Apply filters
+            if (statusFilter !== "all") {
+                filteredRequests = filteredRequests.filter(req => req.status === statusFilter);
+            }
+            if (searchTerm) {
+                filteredRequests = filteredRequests.filter(req =>
+                    req.id.toLowerCase().includes(searchTerm) || req.employeeName.toLowerCase().includes(searchTerm)
+                );
+            }
+
+            filteredRequests.forEach(req => {
+                const approvers = getApproversForRequest(req);
+                const canAct = approvers.includes(currentUser.id) && req.status === "Pending" && canUserActOnRequest(req);
+                const card = createRequestCard(req, canAct);
+                container.appendChild(card);
+            });
+        }
+
+        // Load approver requests
+        function loadApproverRequests() {
+            const statusFilter = document.getElementById("approver-status-filter").value;
+            const searchTerm = document.getElementById("approver-search").value.toLowerCase();
+            const container = document.getElementById("approver-requests");
+            container.innerHTML = "";
+
+            // TODO: Replace with database query
+            let filteredRequests = database.requests.filter(req => {
+                const approvers = getApproversForRequest(req);
+                return approvers.includes(currentUser.id);
+            });
+
+            // Apply filters
+            if (statusFilter !== "all") {
+                filteredRequests = filteredRequests.filter(req => req.status === statusFilter);
+            }
+            if (searchTerm) {
+                filteredRequests = filteredRequests.filter(req =>
+                    req.id.toLowerCase().includes(searchTerm) || req.employeeName.toLowerCase().includes(searchTerm)
+                );
+            }
+
+            filteredRequests.forEach(req => {
+                const canAct = req.status === "Pending" && canUserActOnRequest(req);
+                const card = createRequestCard(req, canAct);
+                container.appendChild(card);
+            });
+        }
+
+        // Create request card
+        function createRequestCard(req, showActions) {
+            const manager = getManagerForEmployee(req.employeeId);
+            const approvers = getApproversForRequest(req);
+            const approvalMode = manager.approvalMode;
+            const progress = req.status === "Rejected" ? 0 : calculateProgress(req);
+            const card = document.createElement("div");
+            card.className = "request-card";
+            card.innerHTML = `
+                <div class="request-info">
+                    <p><strong>Request ID:</strong> ${req.id}</p>
+                    <p><strong>Employee:</strong> ${req.employeeName}</p>
+                    <p><strong>Description:</strong> ${req.description}</p>
+                    <p><strong>Category:</strong> ${req.category}</p>
+                    <p><strong>Amount:</strong> ${req.amount} ${req.currency}</p>
+                    <p><strong>Expense Date:</strong> ${req.expenseDate}</p>
+                    <p><strong>Paid By:</strong> ${req.paidBy}</p>
+                    <p><strong>Remarks:</strong> ${req.remarks}</p>
+                    <p><strong>Status:</strong> <span class="status status-${req.status.toLowerCase()}">${req.status}</span></p>
+                    <p><strong>Approver(s):</strong> ${approvers.join(", ")}</p>
+                    <p><strong>Approval Mode:</strong> ${approvalMode.charAt(0).toUpperCase() + approvalMode.slice(1)}</p>
+                    <p><strong>Approval Progress:</strong> ${progress}%</p>
+                </div>
+                <div class="actions">
+                    ${getActionButtons(req, showActions)}
+                </div>
+            `;
+            return card;
+        }
+
+        // Get action buttons
+        function getActionButtons(request, showActions) {
+            if (showActions && request.status === "Pending" && canUserActOnRequest(request)) {
+                return `
+                    <button class="action-btn approve-btn" onclick="confirmAction('${request.id}', 'Approved')">Approve</button>
+                    <button class="action-btn reject-btn" onclick="confirmAction('${request.id}', 'Rejected')">Reject</button>
+                `;
+            }
+            return `<span class="action-btn disabled-btn">No actions available</span>`;
+        }
+
+        // Check if current user can act on the request
+        function canUserActOnRequest(request) {
+            const manager = getManagerForEmployee(request.employeeId);
+            const approvers = getApproversForRequest(request);
+            const isSequential = manager.approvalMode === "sequential";
+
+            if (!approvers.includes(currentUser.id)) return false;
+            if (request.approvals[currentUser.id]) return false; // already acted
+            if (request.status !== "Pending") return false; // no actions on finalized requests
+
+            if (isSequential) {
+                const userIndex = approvers.indexOf(currentUser.id);
+                if (userIndex !== request.currentApproverIndex) return false;
+                // Check prior approvers approved
+                for (let i = 0; i < userIndex; i++) {
+                    if (request.approvals[approvers[i]] !== "Approved") return false;
+                }
+                return true;
+            } else {
+                return true; // simultaneous
+            }
+        }
+
+        // Confirm action
+        function confirmAction(requestId, action) {
+            if (confirm(`Are you sure you want to ${action.toLowerCase()} request ${requestId}?`)) {
+                handleAction(requestId, action);
+            }
+        }
+
+        // Handle action
+        function handleAction(requestId, action) {
+            // TODO: Replace with actual database update
+            const request = database.requests.find(req => req.id === requestId);
+            if (!request) {
+                showFeedback("Request not found!", "error", currentUser.role);
+                return;
+            }
+
+            if (request.status !== "Pending") {
+                showFeedback("Request already processed!", "error", currentUser.role);
+                return;
+            }
+
+            if (!canUserActOnRequest(request)) {
+                showFeedback("You cannot act on this request now!", "error", currentUser.role);
+                return;
+            }
+
+            const manager = getManagerForEmployee(request.employeeId);
+            const approvers = getApproversForRequest(request);
+            const isSequential = manager.approvalMode === "sequential";
+
+            // Record approval
+            request.approvals[currentUser.id] = action;
+
+            // Update status
+            if (action === "Rejected") {
+                request.status = "Rejected";
+                request.currentApproverIndex = approvers.length; // Prevent further actions
+            } else if (isSequential) {
+                request.currentApproverIndex++;
+                if (request.currentApproverIndex >= approvers.length) {
+                    request.status = "Approved";
+                }
+            } else { // simultaneous
+                const allActed = approvers.every(approver => request.approvals[approver]);
+                if (allActed) {
+                    const anyRejected = Object.values(request.approvals).some(a => a === "Rejected");
+                    request.status = anyRejected ? "Rejected" : "Approved";
+                }
+            }
+
+            // Log action
+            const actionLog = {
+                request_id: requestId,
+                employee_name: request.employeeName,
+                manager_id: manager.id,
+                approver_id: currentUser.id,
+                action: action.toLowerCase(),
+                timestamp: new Date().toISOString().replace("T", " ").split(".")[0]
+            };
+            database.actions.push(actionLog);
+
+            console.log("Action logged:", actionLog);
+
+            showFeedback(`Request ${action} successfully!`, "success", currentUser.role);
+
+            // Reload dashboard
+            if (currentUser.role === "manager") {
+                loadManagerRequests();
+            } else if (currentUser.role === "approver") {
+                loadApproverRequests();
+            } else if (currentUser.role === "employee") {
+                loadEmployeeRequests();
+            }
+        }
+
+        // Show feedback
+        function showFeedback(message, type, role) {
+            const feedbackId = role === "login" ? "login-feedback" : `${role}-feedback`;
+            const feedback = document.getElementById(feedbackId);
+            feedback.textContent = message;
+            feedback.className = `feedback feedback-${type}`;
+            feedback.style.display = "block";
+            setTimeout(() => {
+                feedback.style.display = "none";
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
