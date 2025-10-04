@@ -28,16 +28,6 @@ It eliminates manual errors and delays by providing a clean interface where **em
 
 ---
 
-
-project/
-├── backend/
-│ └── server.js
-└── frontend/
-├── admin.html
-├── style.css
-└── script.js
-
-
 ---
 
 ## 🖥️ Tech Stack
@@ -54,4 +44,10 @@ project/
 
 
 ## 🧩 Folder Structure
-
+project/
+├── backend/
+│ └── server.js
+└── frontend/
+├── admin.html
+├── style.css
+└── script.js
