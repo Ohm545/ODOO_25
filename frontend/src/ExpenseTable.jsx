@@ -14,18 +14,21 @@ export default function ExpenseTable({ rows = [] }) {
           </tr>
         </thead>
         <tbody>
-          {rows.map((r, i) => (
-            <tr key={i}>
-              <td>{r.date}</td>
-              <td>{r.vendor}</td>
-              <td>{r.amount}</td>
-              <td>{r.currency}</td>
-              <td>{r.status}</td>
-            </tr>
-          ))}
-          {rows.length === 0 && (
+          {rows.length > 0 ? (
+            rows.map((r) => (
+              <tr key={r.id}>
+                <td>{r.date_of_expense}</td>
+                <td>{r.vendor || r.category || r.description}</td>
+                <td>{r.amount}</td>
+                <td>{r.currency}</td>
+                <td>{r.status}</td>
+              </tr>
+            ))
+          ) : (
             <tr>
-              <td colSpan="5" style={{textAlign:'center',color:'var(--muted)',padding:'18px'}}>No expenses yet.</td>
+              <td colSpan="5" style={{ textAlign: 'center', color: 'var(--muted)', padding: '18px' }}>
+                No expenses yet.
+              </td>
             </tr>
           )}
         </tbody>

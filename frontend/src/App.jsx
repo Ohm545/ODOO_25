@@ -30,7 +30,7 @@ function App() {
         }
       />
 
-      <Route path="/employee/*" element={<EmployeeDashboard />} />
+      <Route path="/employee/*" element={<EmployeeDashboard userId={1} companyId={1}/>} />
       <Route path="/manager/*" element={<ManagerDashboard />} />
       <Route path="/admin/*" element={<AdminDashboard />} />
 

@@ -1,25 +1,44 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
+import axios from 'axios'
 import Sidebar from './Sidebar'
 import Topbar from './TopBar'
 import ExpenseForm from './ExpenseForm'
 import ExpenseTable from './ExpenseTable'
 
-const mockRows = [
-  { date: '2025-09-01', vendor: 'ACME', amount: '45.00', currency: 'USD', status: 'Pending' },
-  { date: '2025-08-12', vendor: 'Coffee Co', amount: '5.75', currency: 'USD', status: 'Approved' }
-]
+export default function EmployeeDashboard({ userId, companyId }) {
+  const [expenses, setExpenses] = useState([])
 
-export default function EmployeeDashboard() {
+  const fetchExpenses = async () => {
+    try {
+      const res = await axios.get(`http://localhost:5000/expenses?user_id=${userId}`)
+      console.log('Fetched expenses:', res.data);
+      setExpenses(res.data)
+    } catch (err) {
+      console.error('Error fetching expenses:', err)
+    }
+  }
+
+  useEffect(() => {
+    fetchExpenses()
+  }, [])
+
   return (
     <div className="app-shell">
-      <Sidebar sections={[{ to: '/employee', label: 'Home' }, { to: '/employee/history', label: 'History' }]} />
+      <Sidebar
+        sections={[
+          { to: '/employee', label: 'Home' },
+          { to: '/employee/history', label: 'History' }
+        ]}
+      />
       <div className="main">
         <Topbar />
         <div className="content">
-          <ExpenseForm />
+          {/* Pass userId, companyId, and refresh callback */}
+          <ExpenseForm userId={1} companyId={1} onSuccess={fetchExpenses} />
+
           <div>
-            <h3 style={{margin:0,marginBottom:8}}>Expense History</h3>
-            <ExpenseTable rows={mockRows} />
+            <h3 style={{ margin: 0, marginBottom: 8 }}>Expense History</h3>
+            <ExpenseTable rows={expenses} />
           </div>
         </div>
       </div>
